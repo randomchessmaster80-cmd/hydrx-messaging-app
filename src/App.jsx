@@ -209,18 +209,18 @@ function App() {
   const toggleReaction = async (msgId, emoji) => {
     const msg = messages.find(m => m.id === msgId);
     let currentReactions = { ...(msg.reactions || {}) };
-    let usersForEmoji = currentReactions[emoji] || [];
     
-    if (usersForEmoji.includes(user.id)) {
-      usersForEmoji = usersForEmoji.filter(id => id !== user.id);
-    } else {
-      usersForEmoji = [...usersForEmoji, user.id];
+    const wasAlreadyReactedWithThisEmoji = (msg.reactions?.[emoji] || []).includes(user.id);
+
+    // Remove user's reaction from all emojis
+    for (const key of Object.keys(currentReactions)) {
+      currentReactions[key] = currentReactions[key].filter(id => id !== user.id);
+      if (currentReactions[key].length === 0) delete currentReactions[key];
     }
     
-    if (usersForEmoji.length === 0) {
-      delete currentReactions[emoji];
-    } else {
-      currentReactions[emoji] = usersForEmoji;
+    // If they were not just un-reacting the same emoji, add the new one
+    if (!wasAlreadyReactedWithThisEmoji) {
+      currentReactions[emoji] = [...(currentReactions[emoji] || []), user.id];
     }
     
     setActiveMessageMenu(null)
