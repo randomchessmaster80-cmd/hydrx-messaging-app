@@ -749,115 +749,114 @@ function App() {
                    <img src={msg.profiles?.avatar_url || '/favicon.jpg'} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover', marginTop: '4px', alignSelf: 'flex-start' }} alt="pfp" />
                 )}
                 
-                <div style={{
-                  backgroundColor: isMine ? '#0078FF' : '#23a559',
-                  borderRadius: isMine ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
-                  padding: '8px 12px',
-                  maxWidth: '70%',
-                  position: 'relative',
-                  color: '#FFFFFF',
-                  boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}>
-                  {/* Replied Message block inside bubble */}
-                  {repliedMsg && (
-                    <div onClick={() => {}} style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '6px', borderRadius: '8px', marginBottom: '4px', borderLeft: '4px solid #FFFFFF', cursor: 'pointer' }}>
-                      <span style={{ fontWeight: 'bold', color: '#FFFFFF', fontSize: '12px', display: 'block', paddingBottom: '2px' }}>{repliedMsg.profiles?.real_name}</span>
-                      <span style={{ fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', color: 'rgba(255,255,255,0.9)' }}>{repliedMsg.content}</span>
+                <div style={{ position: 'relative', maxWidth: '70%', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{
+                    backgroundColor: isMine ? '#0078FF' : '#23a559',
+                    borderRadius: isMine ? '16px 4px 16px 16px' : '4px 16px 16px 16px',
+                    padding: '8px 12px',
+                    color: '#FFFFFF',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}>
+                    {/* Replied Message block inside bubble */}
+                    {repliedMsg && (
+                      <div onClick={() => {}} style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '6px', borderRadius: '8px', marginBottom: '4px', borderLeft: '4px solid #FFFFFF', cursor: 'pointer' }}>
+                        <span style={{ fontWeight: 'bold', color: '#FFFFFF', fontSize: '12px', display: 'block', paddingBottom: '2px' }}>{repliedMsg.profiles?.real_name}</span>
+                        <span style={{ fontSize: '12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', color: 'rgba(255,255,255,0.9)' }}>{repliedMsg.content}</span>
+                      </div>
+                    )}
+
+                    {/* Group Chat Name for others */}
+                    {!isMine && (
+                      <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 'bold', fontSize: '12px', marginBottom: '4px', display: 'block' }}>
+                        {msg.profiles?.real_name} 
+                        {msg.profiles?.is_admin && <span style={{ marginLeft: '4px', color: 'rgba(255,255,255,0.6)', fontSize: '10px' }}>🛡️ ADMIN</span>}
+                        {msg.profiles?.is_admin && <span style={{ marginLeft: '4px', color: 'rgba(255,255,255,0.6)', fontSize: '10px' }}>💻 DEV</span>}
+                      </span>
+                    )}
+
+                    <div className="message-text" style={{ fontSize: '15px', wordWrap: 'break-word', paddingRight: '40px', position: 'relative' }}>
+                      {msg.content}
+                      {/* Timestamp floats bottom right inside bubble */}
+                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', position: 'absolute', bottom: '-4px', right: '0' }}>
+                        {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                  )}
 
-                  {/* Group Chat Name for others */}
-                  {!isMine && (
-                    <span style={{ color: 'rgba(255,255,255,0.85)', fontWeight: 'bold', fontSize: '12px', marginBottom: '4px', display: 'block' }}>
-                      {msg.profiles?.real_name} 
-                      {msg.profiles?.is_admin && <span style={{ marginLeft: '4px', color: 'rgba(255,255,255,0.6)', fontSize: '10px' }}>🛡️ ADMIN</span>}
-                      {msg.profiles?.is_admin && <span style={{ marginLeft: '4px', color: 'rgba(255,255,255,0.6)', fontSize: '10px' }}>💻 DEV</span>}
-                    </span>
-                  )}
-
-                  <div className="message-text" style={{ fontSize: '15px', wordWrap: 'break-word', paddingRight: '40px', position: 'relative' }}>
-                    {msg.content}
-                    {/* Timestamp floats bottom right inside bubble */}
-                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', position: 'absolute', bottom: '-4px', right: '0' }}>
-                      {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
+                    {msg.media_url && msg.media_type?.startsWith('image/') && <img src={msg.media_url} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px', display: 'block' }} alt="attachment" />}
+                    {msg.media_url && msg.media_type?.startsWith('video/') && <video controls src={msg.media_url} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px', display: 'block' }} />}
+                    {msg.media_url && msg.media_type?.startsWith('audio/') && <audio controls src={msg.media_url} style={{ marginTop: '8px', display: 'block', maxWidth: '240px' }} />}
                   </div>
-
-                  {msg.media_url && msg.media_type?.startsWith('image/') && <img src={msg.media_url} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px', display: 'block' }} alt="attachment" />}
-                  {msg.media_url && msg.media_type?.startsWith('video/') && <video controls src={msg.media_url} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px', display: 'block' }} />}
-                  {msg.media_url && msg.media_type?.startsWith('audio/') && <audio controls src={msg.media_url} style={{ marginTop: '8px', display: 'block', maxWidth: '240px' }} />}
                   
-                  {/* Reactions Display */}
+                  {/* Reactions Display (Below the bubble) */}
                   {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                    <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap', position: 'absolute', bottom: '-12px', right: isMine ? '0' : 'auto', left: isMine ? 'auto' : '0' }}>
+                    <div style={{ display: 'flex', gap: '4px', marginTop: '4px', flexWrap: 'wrap', alignSelf: isMine ? 'flex-end' : 'flex-start' }}>
                       {Object.entries(msg.reactions).map(([emoji, users]) => (
                         <div 
                           key={emoji} 
                           onClick={() => { toggleReaction(msg.id, emoji); setActiveReactionMenu(null); }}
                           style={{ 
-                            backgroundColor: users.includes(user?.id) ? '#e3f2fd' : '#ffffff', 
-                            border: `1px solid ${users.includes(user?.id) ? '#0078FF' : '#e0e0e0'}`,
-                            padding: '2px 6px', 
+                            backgroundColor: users.includes(user?.id) ? '#23a559' : '#313338', 
+                            border: `1px solid ${users.includes(user?.id) ? '#23a559' : '#3f4147'}`,
+                            padding: '2px 8px', 
                             borderRadius: '12px', 
-                            fontSize: '12px', 
+                            fontSize: '13px', 
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             gap: '4px',
-                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                           }}
                         >
                           <span>{emoji}</span>
-                          {users.length > 1 && <span style={{ fontSize: '11px', color: '#000000', fontWeight: 'bold' }}>{users.length}</span>}
+                          {users.length > 1 && <span style={{ fontSize: '11px', color: '#FFFFFF', fontWeight: 'bold' }}>{users.length}</span>}
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
 
-                {/* Floating Actions Menu (Reactions + 3-Dot) */}
-                {(isHovered || isMenuOpen || activeReactionMenu === msg.id) && (
-                  <div style={{ position: 'absolute', right: isMine ? 'auto' : '-65px', left: isMine ? '-65px' : 'auto', top: '8px', display: 'flex', gap: '4px', zIndex: 50, backgroundColor: 'rgba(255,255,255,0.1)', padding: '2px 4px', borderRadius: '12px' }}>
-                    
-                    {/* Reaction Button */}
-                    <div style={{ position: 'relative' }}>
-                      <button onClick={() => setActiveReactionMenu(activeReactionMenu === msg.id ? null : msg.id)} style={{ background: 'transparent', border: 'none', color: '#8696a0', cursor: 'pointer', padding: '4px', fontSize: '16px', borderRadius: '50%', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor='rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.backgroundColor='transparent'} title="React">😊</button>
+                  {/* Floating Actions Menu (Reactions + 3-Dot) */}
+                  {(isHovered || isMenuOpen || activeReactionMenu === msg.id) && (
+                    <div style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)', right: isMine ? '100%' : 'auto', left: isMine ? 'auto' : '100%', marginLeft: isMine ? '0' : '8px', marginRight: isMine ? '8px' : '0', display: 'flex', gap: '4px', zIndex: 50, backgroundColor: 'rgba(255,255,255,0.1)', padding: '2px 4px', borderRadius: '12px' }}>
                       
-                      {activeReactionMenu === msg.id && (
-                        <>
-                          <div onClick={() => setActiveReactionMenu(null)} style={{ position: 'fixed', inset: 0, zIndex: 140 }}></div>
-                          <div style={{ position: 'absolute', bottom: '30px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#ffffff', borderRadius: '24px', padding: '6px 12px', display: 'flex', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 150, border: '1px solid #e0e0e0', alignItems: 'center' }}>
-                              {['👍', '❤️', '😂', '😮', '😢', '🔥'].map(emoji => (
-                                <span key={emoji} onClick={() => { toggleReaction(msg.id, emoji); setActiveReactionMenu(null); }} style={{ fontSize: '24px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseEnter={e => e.target.style.transform = 'scale(1.2)'} onMouseLeave={e => e.target.style.transform = 'scale(1)'}>
-                                  {emoji}
+                      {/* Reaction Button */}
+                      <div style={{ position: 'relative' }}>
+                        <button onClick={() => setActiveReactionMenu(activeReactionMenu === msg.id ? null : msg.id)} style={{ background: 'transparent', border: 'none', color: '#8696a0', cursor: 'pointer', padding: '4px', fontSize: '16px', borderRadius: '50%', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor='rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.backgroundColor='transparent'} title="React">😊</button>
+                        
+                        {activeReactionMenu === msg.id && (
+                          <>
+                            <div onClick={() => setActiveReactionMenu(null)} style={{ position: 'fixed', inset: 0, zIndex: 140 }}></div>
+                            <div style={{ position: 'absolute', bottom: '30px', left: '50%', transform: 'translateX(-50%)', backgroundColor: '#ffffff', borderRadius: '24px', padding: '6px 12px', display: 'flex', gap: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 150, border: '1px solid #e0e0e0', alignItems: 'center' }}>
+                                {['👍', '❤️', '😂', '😮', '😢', '🔥'].map(emoji => (
+                                  <span key={emoji} onClick={() => { toggleReaction(msg.id, emoji); setActiveReactionMenu(null); }} style={{ fontSize: '24px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseEnter={e => e.target.style.transform = 'scale(1.2)'} onMouseLeave={e => e.target.style.transform = 'scale(1)'}>
+                                    {emoji}
+                                  </span>
+                                ))}
+                                <div style={{ width: '1px', height: '24px', backgroundColor: '#e0e0e0', margin: '0 4px' }}></div>
+                                <span onClick={() => { setShowReactionEmojiPicker(msg.id); setActiveReactionMenu(null); }} style={{ fontSize: '18px', cursor: 'pointer', color: '#8696a0', transition: 'transform 0.1s, background-color 0.1s', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#f0f2f5' }} onMouseEnter={e => {e.target.style.transform = 'scale(1.1)'; e.target.style.backgroundColor = '#e0e0e0'}} onMouseLeave={e => {e.target.style.transform = 'scale(1)'; e.target.style.backgroundColor = '#f0f2f5'}} title="More Emojis">
+                                  ➕
                                 </span>
-                              ))}
-                              <div style={{ width: '1px', height: '24px', backgroundColor: '#e0e0e0', margin: '0 4px' }}></div>
-                              <span onClick={() => { setShowReactionEmojiPicker(msg.id); setActiveReactionMenu(null); }} style={{ fontSize: '18px', cursor: 'pointer', color: '#8696a0', transition: 'transform 0.1s, background-color 0.1s', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '50%', backgroundColor: '#f0f2f5' }} onMouseEnter={e => {e.target.style.transform = 'scale(1.1)'; e.target.style.backgroundColor = '#e0e0e0'}} onMouseLeave={e => {e.target.style.transform = 'scale(1)'; e.target.style.backgroundColor = '#f0f2f5'}} title="More Emojis">
-                                ➕
-                              </span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Full Emoji Picker Popover */}
+                      {showReactionEmojiPicker === msg.id && (
+                        <>
+                          <div onClick={() => setShowReactionEmojiPicker(null)} style={{ position: 'fixed', inset: 0, zIndex: 140 }}></div>
+                          <div style={{ position: 'absolute', bottom: '30px', right: isMine ? '0' : 'auto', left: isMine ? 'auto' : '0', zIndex: 150, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', borderRadius: '8px' }}>
+                            <EmojiPicker onEmojiClick={(e) => { toggleReaction(msg.id, e.emoji); setShowReactionEmojiPicker(null); }} theme="dark" />
                           </div>
                         </>
                       )}
-                    </div>
 
-                    {/* Full Emoji Picker Popover */}
-                    {showReactionEmojiPicker === msg.id && (
-                      <>
-                        <div onClick={() => setShowReactionEmojiPicker(null)} style={{ position: 'fixed', inset: 0, zIndex: 140 }}></div>
-                        <div style={{ position: 'absolute', bottom: '30px', right: isMine ? '0' : 'auto', left: isMine ? 'auto' : '0', zIndex: 150, boxShadow: '0 8px 32px rgba(0,0,0,0.5)', borderRadius: '8px' }}>
-                          <EmojiPicker onEmojiClick={(e) => { toggleReaction(msg.id, e.emoji); setShowReactionEmojiPicker(null); }} theme="dark" />
-                        </div>
-                      </>
-                    )}
-
-                    {/* Options Button */}
-                    <div style={{ position: 'relative' }}>
-                      <button onClick={() => setActiveMessageMenu(isMenuOpen ? null : msg.id)} style={{ background: 'transparent', border: 'none', color: '#8696a0', cursor: 'pointer', padding: '4px', fontSize: '18px', borderRadius: '50%', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor='rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.backgroundColor='transparent'} title="Options">⌄</button>
-                      
-                      {isMenuOpen && (
+                      {/* Options Button */}
+                      <div style={{ position: 'relative' }}>
+                        <button onClick={() => setActiveMessageMenu(isMenuOpen ? null : msg.id)} style={{ background: 'transparent', border: 'none', color: '#8696a0', cursor: 'pointer', padding: '4px', fontSize: '18px', borderRadius: '50%', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.backgroundColor='rgba(255,255,255,0.1)'} onMouseLeave={e => e.currentTarget.style.backgroundColor='transparent'} title="Options">⌄</button>
+                        
+                        {isMenuOpen && (
                         <>
                           <div onClick={() => setActiveMessageMenu(null)} style={{ position: 'fixed', inset: 0, zIndex: 140 }}></div>
                           <div style={{ position: 'absolute', right: isMine ? '0' : 'auto', left: isMine ? 'auto' : '0', top: '24px', backgroundColor: '#2b2d31', borderRadius: '8px', padding: '8px', display: 'flex', flexDirection: 'column', boxShadow: '0 8px 24px rgba(0,0,0,0.5)', width: '180px', zIndex: 150, border: '1px solid #1e1f22' }}>
@@ -869,9 +868,9 @@ function App() {
                         </>
                       )}
                     </div>
-
                   </div>
                 )}
+                </div>
               </div>
             );
           })}
