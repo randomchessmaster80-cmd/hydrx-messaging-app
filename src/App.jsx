@@ -20,6 +20,7 @@ function App() {
   // WhatsApp File Upload Refs
   const imageInputRef = useRef(null)
   const audioInputRef = useRef(null)
+  const docInputRef = useRef(null)
 
   // Notes State
   const [showNoteModal, setShowNoteModal] = useState(false)
@@ -264,6 +265,12 @@ function App() {
     if (!file) return
     setShowAttachmentMenu(false)
 
+    // Check 100MB Limit (100 * 1024 * 1024 bytes)
+    if (file.size > 104857600) {
+      alert("File is too large! Maximum size is 100MB.")
+      return
+    }
+
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = `${user.id}/${fileName}`
@@ -274,12 +281,13 @@ function App() {
     const { data } = supabase.storage.from('attachments').getPublicUrl(filePath)
     const replyId = replyingTo?.id || null
     setReplyingTo(null)
-    await supabase.from('messages').insert({ sender_id: user.id, receiver_id: activeChat === 'global' ? null : activeChat, content: "Sent an attachment", media_url: data.publicUrl, media_type: file.type, reply_to_id: replyId })
+    await supabase.from('messages').insert({ sender_id: user.id, receiver_id: activeChat === 'global' ? null : activeChat, content: "Sent an attachment", media_url: data.publicUrl, media_type: file.type || 'application/octet-stream', reply_to_id: replyId })
     setMessageInput('')
     
     // Reset file inputs
     if (imageInputRef.current) imageInputRef.current.value = ''
     if (audioInputRef.current) audioInputRef.current.value = ''
+    if (docInputRef.current) docInputRef.current.value = ''
   }
 
   const handlePfpUpload = async (e) => {
@@ -853,6 +861,11 @@ function App() {
                     {msg.media_url && msg.media_type?.startsWith('image/') && <img src={msg.media_url} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px', display: 'block' }} alt="attachment" />}
                     {msg.media_url && msg.media_type?.startsWith('video/') && <video controls src={msg.media_url} style={{ maxWidth: '100%', borderRadius: '8px', marginTop: '8px', display: 'block' }} />}
                     {msg.media_url && msg.media_type?.startsWith('audio/') && <audio controls src={msg.media_url} style={{ marginTop: '8px', display: 'block', maxWidth: '240px' }} />}
+                    {msg.media_url && !msg.media_type?.startsWith('image/') && !msg.media_type?.startsWith('video/') && !msg.media_type?.startsWith('audio/') && (
+                      <a href={msg.media_url} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'rgba(0,0,0,0.2)', padding: '8px 12px', borderRadius: '8px', marginTop: '8px', textDecoration: 'none', color: '#fff' }}>
+                        📄 <span style={{ textDecoration: 'underline' }}>Download Document</span>
+                      </a>
+                    )}
                   </div>
                   
                   {/* Reactions Display (Below the bubble) */}
@@ -968,6 +981,10 @@ function App() {
                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundImage: 'linear-gradient(135deg, #FF9800 0%, #FF5722 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', boxShadow: '0 4px 12px rgba(255,87,34,0.4)' }}>🎵</div>
                  <span style={{ color: '#dbdee1', fontSize: '13px', fontWeight: 'bold' }}>Audio</span>
                </div>
+               <div onClick={() => { docInputRef.current?.click(); setShowAttachmentMenu(false); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                 <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundImage: 'linear-gradient(135deg, #8E2DE2 0%, #4A00E0 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', boxShadow: '0 4px 12px rgba(74,0,224,0.4)' }}>📄</div>
+                 <span style={{ color: '#dbdee1', fontSize: '13px', fontWeight: 'bold' }}>Document</span>
+               </div>
             </div>
           )}
 
@@ -993,8 +1010,9 @@ function App() {
           )}
 
           <div className="chat-input-wrapper" style={{ borderRadius: replyingTo ? '0 0 24px 24px' : '24px', padding: '8px 16px', backgroundColor: '#2b2d31', display: 'flex', alignItems: 'center' }}>
-            <input type="file" ref={imageInputRef} style={{ display: 'none' }} accept="image/*" onChange={(e) => handleSpecificFileUpload(e, 'image')} />
+            <input type="file" ref={imageInputRef} style={{ display: 'none' }} accept="image/*,video/*" onChange={(e) => handleSpecificFileUpload(e, 'image')} />
             <input type="file" ref={audioInputRef} style={{ display: 'none' }} accept="audio/*" onChange={(e) => handleSpecificFileUpload(e, 'audio')} />
+            <input type="file" ref={docInputRef} style={{ display: 'none' }} accept="*/*" onChange={(e) => handleSpecificFileUpload(e, 'document')} />
             
             <button style={{color: '#8696a0', fontSize: '26px', padding: '0 8px', cursor: 'pointer', border: 'none', background: 'transparent'}} onClick={() => {setShowEmojiPicker(!showEmojiPicker); setShowGifPicker(false); setShowAttachmentMenu(false);}} title="Emojis">😀</button>
             <button style={{color: '#8696a0', fontSize: '26px', padding: '0 8px', cursor: 'pointer', border: 'none', background: 'transparent', transform: 'rotate(45deg)'}} onClick={() => {setShowAttachmentMenu(!showAttachmentMenu); setShowEmojiPicker(false); setShowGifPicker(false);}} title="Attach File">📎</button>
