@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
 import EmojiPicker from 'emoji-picker-react'
-import Linkify from 'react-linkify'
 import './App.css'
 
 function App() {
@@ -438,11 +437,33 @@ function App() {
     }
   }
 
-  const linkDecorator = (href, text, key) => (
-    <a href={href} key={key} target="_blank" rel="noopener noreferrer" style={{ color: '#00BFFF', textDecoration: 'underline' }} onClick={e => e.stopPropagation()}>
-      {text}
-    </a>
-  );
+  const renderContentWithLinks = (text) => {
+    if (!text) return text;
+    // Bulletproof regex for any domain format (google.com, www.yahoo.com, https://site.com)
+    const urlRegex = /((?:https?:\/\/)?(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{2,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*))/gi;
+    const parts = text.split(urlRegex);
+    
+    return parts.map((part, i) => {
+      // Check if this part is the URL
+      if (part.match(urlRegex) && part.includes('.')) {
+        // Add https if missing so the browser knows it's an external link
+        const href = part.match(/^https?:\/\//i) ? part : `https://${part}`;
+        return (
+          <a 
+            key={i} 
+            href={href} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            style={{ color: '#00BFFF', textDecoration: 'underline', cursor: 'pointer', zIndex: 100, position: 'relative' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  }
 
   return (
     <div className="app-container">
@@ -821,7 +842,7 @@ function App() {
                     )}
 
                     <div className="message-text" style={{ fontSize: '15px', wordWrap: 'break-word', paddingRight: '40px', position: 'relative' }}>
-                      <Linkify componentDecorator={linkDecorator}>{msg.content}</Linkify>
+                      {renderContentWithLinks(msg.content)}
                       {/* Timestamp floats bottom right inside bubble */}
                       <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', position: 'absolute', bottom: '-4px', right: '0' }}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
