@@ -19,6 +19,7 @@ function App() {
 
   // WhatsApp File Upload Refs
   const imageInputRef = useRef(null)
+  const videoInputRef = useRef(null)
   const audioInputRef = useRef(null)
   const docInputRef = useRef(null)
 
@@ -286,6 +287,7 @@ function App() {
     
     // Reset file inputs
     if (imageInputRef.current) imageInputRef.current.value = ''
+    if (videoInputRef.current) videoInputRef.current.value = ''
     if (audioInputRef.current) audioInputRef.current.value = ''
     if (docInputRef.current) docInputRef.current.value = ''
   }
@@ -977,6 +979,10 @@ function App() {
                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundImage: 'linear-gradient(135deg, #0078FF 0%, #00C6FF 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', boxShadow: '0 4px 12px rgba(0,198,255,0.4)' }}>🖼️</div>
                  <span style={{ color: '#dbdee1', fontSize: '13px', fontWeight: 'bold' }}>Photos</span>
                </div>
+               <div onClick={() => { videoInputRef.current?.click(); setShowAttachmentMenu(false); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                 <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundImage: 'linear-gradient(135deg, #E91E63 0%, #FF4081 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', boxShadow: '0 4px 12px rgba(233,30,99,0.4)' }}>🎥</div>
+                 <span style={{ color: '#dbdee1', fontSize: '13px', fontWeight: 'bold' }}>Videos</span>
+               </div>
                <div onClick={() => { audioInputRef.current?.click(); setShowAttachmentMenu(false); }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', cursor: 'pointer', transition: 'transform 0.1s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', backgroundImage: 'linear-gradient(135deg, #FF9800 0%, #FF5722 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', boxShadow: '0 4px 12px rgba(255,87,34,0.4)' }}>🎵</div>
                  <span style={{ color: '#dbdee1', fontSize: '13px', fontWeight: 'bold' }}>Audio</span>
@@ -1010,7 +1016,8 @@ function App() {
           )}
 
           <div className="chat-input-wrapper" style={{ borderRadius: replyingTo ? '0 0 24px 24px' : '24px', padding: '8px 16px', backgroundColor: '#2b2d31', display: 'flex', alignItems: 'center' }}>
-            <input type="file" ref={imageInputRef} style={{ display: 'none' }} accept="image/*,video/*" onChange={(e) => handleSpecificFileUpload(e, 'image')} />
+            <input type="file" ref={imageInputRef} style={{ display: 'none' }} accept="image/*" onChange={(e) => handleSpecificFileUpload(e, 'image')} />
+            <input type="file" ref={videoInputRef} style={{ display: 'none' }} accept="video/*" onChange={(e) => handleSpecificFileUpload(e, 'video')} />
             <input type="file" ref={audioInputRef} style={{ display: 'none' }} accept="audio/*" onChange={(e) => handleSpecificFileUpload(e, 'audio')} />
             <input type="file" ref={docInputRef} style={{ display: 'none' }} accept="*/*" onChange={(e) => handleSpecificFileUpload(e, 'document')} />
             
