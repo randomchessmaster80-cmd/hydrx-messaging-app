@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from './supabaseClient'
 import EmojiPicker from 'emoji-picker-react'
+import Linkify from 'react-linkify'
 import './App.css'
 
 function App() {
@@ -400,6 +401,49 @@ function App() {
   const currentUserProfile = profiles.find(p => p.id === user?.id)
   const hasNote = currentUserProfile?.note_text || currentUserProfile?.note_song_url
 
+  const [isRecording, setIsRecording] = useState(false)
+  const mediaRecorderRef = useRef(null)
+  const audioChunksRef = useRef([])
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      mediaRecorderRef.current = new MediaRecorder(stream)
+      mediaRecorderRef.current.ondataavailable = (e) => {
+        if (e.data.size > 0) audioChunksRef.current.push(e.data)
+      }
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' })
+        audioChunksRef.current = []
+        const fileName = `${Date.now()}_voice.webm`
+        const filePath = `${user.id}/${fileName}`
+        const { error: uploadError } = await supabase.storage.from('attachments').upload(filePath, audioBlob)
+        if (!uploadError) {
+          const { data } = supabase.storage.from('attachments').getPublicUrl(filePath)
+          const replyId = replyingTo?.id || null
+          setReplyingTo(null)
+          await supabase.from('messages').insert({ sender_id: user.id, receiver_id: activeChat === 'global' ? null : activeChat, content: "🎤 Voice Message", media_url: data.publicUrl, media_type: 'audio/webm', reply_to_id: replyId })
+        }
+      }
+      mediaRecorderRef.current.start()
+      setIsRecording(true)
+    } catch (err) { alert("Microphone access denied!") }
+  }
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      mediaRecorderRef.current.stream.getTracks().forEach(t => t.stop())
+      setIsRecording(false)
+    }
+  }
+
+  const linkDecorator = (href, text, key) => (
+    <a href={href} key={key} target="_blank" rel="noopener noreferrer" style={{ color: '#00BFFF', textDecoration: 'underline' }} onClick={e => e.stopPropagation()}>
+      {text}
+    </a>
+  );
+
   return (
     <div className="app-container">
       <style>{`
@@ -777,7 +821,7 @@ function App() {
                     )}
 
                     <div className="message-text" style={{ fontSize: '15px', wordWrap: 'break-word', paddingRight: '40px', position: 'relative' }}>
-                      {msg.content}
+                      <Linkify componentDecorator={linkDecorator}>{msg.content}</Linkify>
                       {/* Timestamp floats bottom right inside bubble */}
                       <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', position: 'absolute', bottom: '-4px', right: '0' }}>
                         {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -936,6 +980,28 @@ function App() {
             <input type="text" className="chat-input" style={{ backgroundColor: 'transparent', fontSize: '15px', color: '#dbdee1' }} placeholder="Type a message" value={messageInput} onChange={(e) => setMessageInput(e.target.value)} onKeyDown={handleSendMessage} />
             
             <button style={{color: '#8696a0', fontSize: '16px', padding: '0 8px', cursor: 'pointer', border: 'none', background: 'transparent', fontWeight: 'bold'}} onClick={() => {setShowGifPicker(!showGifPicker); setShowEmojiPicker(false); setShowAttachmentMenu(false);}} title="Send a GIF">GIF</button>
+
+            {/* Voice Record Button */}
+            <button 
+              onMouseDown={startRecording}
+              onMouseUp={stopRecording}
+              onMouseLeave={stopRecording}
+              onTouchStart={startRecording}
+              onTouchEnd={stopRecording}
+              style={{
+                color: isRecording ? '#da373c' : '#8696a0', 
+                fontSize: '22px', 
+                padding: '0 8px', 
+                cursor: 'pointer', 
+                border: 'none', 
+                background: 'transparent',
+                transition: 'color 0.2s, transform 0.2s',
+                transform: isRecording ? 'scale(1.2)' : 'scale(1)'
+              }} 
+              title="Hold to Record Voice"
+            >
+              🎤
+            </button>
           </div>
         </div>
       </div>
