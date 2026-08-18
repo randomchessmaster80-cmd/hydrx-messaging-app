@@ -53,6 +53,11 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showAdminPanel, setShowAdminPanel] = useState(false)
 
+  // Voice Recording State
+  const [isRecording, setIsRecording] = useState(false)
+  const mediaRecorderRef = useRef(null)
+  const audioChunksRef = useRef([])
+
   const isSubscribedRef = useRef(false)
 
   useEffect(() => {
@@ -399,10 +404,6 @@ function App() {
 
   const currentUserProfile = profiles.find(p => p.id === user?.id)
   const hasNote = currentUserProfile?.note_text || currentUserProfile?.note_song_url
-
-  const [isRecording, setIsRecording] = useState(false)
-  const mediaRecorderRef = useRef(null)
-  const audioChunksRef = useRef([])
 
   const startRecording = async () => {
     try {
